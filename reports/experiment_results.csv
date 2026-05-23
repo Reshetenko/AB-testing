@@ -1,0 +1,16 @@
+,value
+raw_rows,294478
+clean_rows,290584
+removed_invalid_or_duplicate_rows,3894
+start_date,2017-01-02
+end_date,2017-01-24
+control_users,145274
+treatment_users,145310
+control_conversion_rate,0.1203863045004612
+treatment_conversion_rate,0.11880806551510564
+absolute_lift,-0.0015782389853555567
+relative_lift,-0.01310978845894809
+z_score,-1.3109241984234394
+p_value,0.18988337448195108
+ci_low,-0.003937903604443846
+ci_high,0.0007814256337327326

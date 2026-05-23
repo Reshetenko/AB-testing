@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A/B Test Dashboard</title>
+  <style>
+    :root {
+      --bg: #f7f7f2;
+      --panel: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dfe3e6;
+      --control: #2f6f73;
+      --treatment: #b45309;
+      --risk: #9f1239;
+      --ok: #166534;
+      --shadow: 0 12px 30px rgba(32, 33, 36, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      font-weight: 780;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 720px;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .status {
+      min-width: 260px;
+      background: #fff6ed;
+      border: 1px solid #fed7aa;
+      border-left: 5px solid var(--treatment);
+      padding: 14px 16px;
+      border-radius: 8px;
+    }
+
+    .status strong {
+      display: block;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #7c2d12;
+      margin-bottom: 4px;
+    }
+
+    .status span {
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kpi,
+    .panel {
+      background: var(--panel);
+      border: 1px solid #eceff1;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi {
+      padding: 16px;
+      min-height: 116px;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .kpi .value {
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 790;
+      margin-bottom: 8px;
+    }
+
+    .kpi .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .negative {
+      color: var(--risk);
+    }
+
+    .positive {
+      color: var(--ok);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .panel.wide {
+      grid-column: 1 / -1;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .small {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .legend span {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .chart {
+      width: 100%;
+      height: 320px;
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.55fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .recommendation {
+      border-left: 5px solid var(--risk);
+      padding: 16px;
+      background: #fff1f2;
+      border-radius: 8px;
+    }
+
+    .recommendation h2 {
+      color: #881337;
+      margin-bottom: 8px;
+    }
+
+    .recommendation p {
+      margin: 0;
+      color: #4c0519;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .method {
+      padding: 16px;
+      background: #eef6f6;
+      border: 1px solid #c8e2e2;
+      border-radius: 8px;
+    }
+
+    .method p {
+      margin: 7px 0 0;
+      font-size: 14px;
+      color: #244d50;
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .grid,
+      .callout {
+        grid-template-columns: 1fr;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .status {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        padding: 20px 12px 30px;
+      }
+
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .panel-head {
+        flex-direction: column;
+      }
+
+      .chart {
+        height: 260px;
+      }
+
+      th,
+      td {
+        padding: 9px 6px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <h1>A/B Test Dashboard</h1>
+        <p class="subtitle">New landing page vs old landing page. Experiment window: 2017-01-02 to 2017-01-24. Primary metric: conversion rate.</p>
+      </div>
+      <div class="status">
+        <strong>Decision</strong>
+        <span>Do not roll out the new page</span>
+      </div>
+    </header>
+
+    <section class="kpis" aria-label="Key metrics">
+      <article class="kpi">
+        <div class="label">Control conversion</div>
+        <div class="value">12.04%</div>
+        <div class="note">Old page, 145,274 users</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Treatment conversion</div>
+        <div class="value">11.88%</div>
+        <div class="note">New page, 145,310 users</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Absolute lift</div>
+        <div class="value negative">-0.158 pp</div>
+        <div class="note">Treatment minus control</div>
+      </article>
+      <article class="kpi">
+        <div class="label">p-value</div>
+        <div class="value">0.190</div>
+        <div class="note">Not significant at alpha = 0.05</div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Conversion Rate by Group</h2>
+            <p class="small">Treatment underperforms control by 0.158 percentage points.</p>
+          </div>
+          <div class="legend">
+            <span><i class="swatch" style="background: var(--control)"></i>Control</span>
+            <span><i class="swatch" style="background: var(--treatment)"></i>Treatment</span>
+          </div>
+        </div>
+        <svg id="barChart" class="chart" role="img" aria-label="Conversion rate by group"></svg>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Statistical Result</h2>
+            <p class="small">Two-proportion z-test, two-sided alternative.</p>
+          </div>
+        </div>
+        <table>
+          <tbody>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>z-score</td><td>-1.311</td></tr>
+            <tr><td>p-value</td><td>0.190</td></tr>
+            <tr><td>95% CI</td><td>[-0.394 pp, +0.078 pp]</td></tr>
+            <tr><td>Relative lift</td><td class="negative">-1.31%</td></tr>
+            <tr><td>Clean users</td><td>290,584</td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="panel wide">
+        <div class="panel-head">
+          <div>
+            <h2>Daily Conversion Trend</h2>
+            <p class="small">Daily movement does not show a stable treatment advantage.</p>
+          </div>
+          <div class="legend">
+            <span><i class="swatch" style="background: var(--control)"></i>Control</span>
+            <span><i class="swatch" style="background: var(--treatment)"></i>Treatment</span>
+          </div>
+        </div>
+        <svg id="lineChart" class="chart" role="img" aria-label="Daily conversion trend"></svg>
+      </article>
+
+      <article class="panel wide callout">
+        <div class="recommendation">
+          <h2>Recommendation</h2>
+          <p>Keep the old page as the default experience. The new page did not produce a statistically significant conversion uplift, and the observed effect is slightly negative.</p>
+        </div>
+        <div class="method">
+          <h2>Data Quality</h2>
+          <p>Raw rows: 294,478. Clean user-level rows: 290,584. Removed invalid or duplicate rows: 3,894.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer>Generated from reports/summary_metrics.csv, reports/experiment_results.csv, and reports/daily_conversion.csv.</footer>
+  </main>
+
+  <script>
+    const summary = [
+      { group: "Control", users: 145274, conversions: 17489, rate: 0.1203863045004612, color: "#2f6f73" },
+      { group: "Treatment", users: 145310, conversions: 17264, rate: 0.11880806551510564, color: "#b45309" }
+    ];
+
+    const daily = [
+      ["2017-01-02","control",0.12556838055264077],["2017-01-02","treatment",0.11987381703470032],
+      ["2017-01-03","control",0.11380880121396054],["2017-01-03","treatment",0.11378059836808703],
+      ["2017-01-04","control",0.12192155670416539],["2017-01-04","treatment",0.11664883045405901],
+      ["2017-01-05","control",0.12323012291893574],["2017-01-05","treatment",0.11498847040737895],
+      ["2017-01-06","control",0.11534968210717529],["2017-01-06","treatment",0.1234622795316437],
+      ["2017-01-07","control",0.12098728043609934],["2017-01-07","treatment",0.11620517476168861],
+      ["2017-01-08","control",0.11888739344997756],["2017-01-08","treatment",0.12074626865671642],
+      ["2017-01-09","control",0.1196439348219674],["2017-01-09","treatment",0.1180650037792895],
+      ["2017-01-10","control",0.11286444244063722],["2017-01-10","treatment",0.12634408602150538],
+      ["2017-01-11","control",0.11886961722488039],["2017-01-11","treatment",0.11509066386932414],
+      ["2017-01-12","control",0.12204845139527752],["2017-01-12","treatment",0.12234443272562905],
+      ["2017-01-13","control",0.11691086691086691],["2017-01-13","treatment",0.11124769514443761],
+      ["2017-01-14","control",0.12675626145387905],["2017-01-14","treatment",0.11926049401424459],
+      ["2017-01-15","control",0.1204944891271969],["2017-01-15","treatment",0.1134524354863338],
+      ["2017-01-16","control",0.12183280230617509],["2017-01-16","treatment",0.11917494270435447],
+      ["2017-01-17","control",0.12286534683391265],["2017-01-17","treatment",0.1272560416029367],
+      ["2017-01-18","control",0.1248071582844801],["2017-01-18","treatment",0.12479176132061184],
+      ["2017-01-19","control",0.11994527211918517],["2017-01-19","treatment",0.11721611721611722],
+      ["2017-01-20","control",0.11524334251606978],["2017-01-20","treatment",0.11768228776762989],
+      ["2017-01-21","control",0.12594458438287154],["2017-01-21","treatment",0.11570121951219513],
+      ["2017-01-22","control",0.11916312916919346],["2017-01-22","treatment",0.11800869695606538],
+      ["2017-01-23","control",0.12567004169148302],["2017-01-23","treatment",0.12106135986733002],
+      ["2017-01-24","control",0.11800745871070857],["2017-01-24","treatment",0.12170605813637599]
+    ];
+
+    const pct = value => `${(value * 100).toFixed(2)}%`;
+
+    function clearSvg(svg, width, height) {
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.innerHTML = "";
+    }
+
+    function el(name, attrs = {}) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+      return node;
+    }
+
+    function text(svg, content, x, y, attrs = {}) {
+      const node = el("text", { x, y, ...attrs });
+      node.textContent = content;
+      svg.appendChild(node);
+      return node;
+    }
+
+    function drawBarChart() {
+      const svg = document.querySelector("#barChart");
+      const width = 680;
+      const height = 320;
+      clearSvg(svg, width, height);
+
+      const margin = { top: 24, right: 24, bottom: 56, left: 62 };
+      const chartW = width - margin.left - margin.right;
+      const chartH = height - margin.top - margin.bottom;
+      const max = Math.max(...summary.map(d => d.rate)) * 1.22;
+
+      svg.appendChild(el("line", { x1: margin.left, y1: height - margin.bottom, x2: width - margin.right, y2: height - margin.bottom, stroke: "#9aa0a6" }));
+      svg.appendChild(el("line", { x1: margin.left, y1: margin.top, x2: margin.left, y2: height - margin.bottom, stroke: "#9aa0a6" }));
+
+      for (let i = 0; i <= 4; i++) {
+        const value = max * i / 4;
+        const y = height - margin.bottom - chartH * i / 4;
+        svg.appendChild(el("line", { x1: margin.left, y1: y, x2: width - margin.right, y2: y, stroke: "#eceff1" }));
+        text(svg, pct(value), margin.left - 10, y + 4, { "text-anchor": "end", "font-size": 12, fill: "#5f6368" });
+      }
+
+      const slot = chartW / summary.length;
+      const barW = slot * 0.42;
+      summary.forEach((item, index) => {
+        const x = margin.left + slot * index + (slot - barW) / 2;
+        const barH = chartH * item.rate / max;
+        const y = height - margin.bottom - barH;
+        svg.appendChild(el("rect", { x, y, width: barW, height: barH, rx: 5, fill: item.color }));
+        text(svg, pct(item.rate), x + barW / 2, y - 11, { "text-anchor": "middle", "font-size": 18, "font-weight": 750, fill: "#202124" });
+        text(svg, item.group, x + barW / 2, height - margin.bottom + 30, { "text-anchor": "middle", "font-size": 13, fill: "#202124" });
+        text(svg, `${item.conversions.toLocaleString()} conversions`, x + barW / 2, height - margin.bottom + 48, { "text-anchor": "middle", "font-size": 11, fill: "#5f6368" });
+      });
+    }
+
+    function drawLineChart() {
+      const svg = document.querySelector("#lineChart");
+      const width = 1080;
+      const height = 320;
+      clearSvg(svg, width, height);
+
+      const margin = { top: 20, right: 28, bottom: 50, left: 62 };
+      const chartW = width - margin.left - margin.right;
+      const chartH = height - margin.top - margin.bottom;
+      const dates = [...new Set(daily.map(d => d[0]))];
+      const values = daily.map(d => d[2]);
+      const min = Math.min(...values) * 0.97;
+      const max = Math.max(...values) * 1.03;
+
+      const xScale = date => margin.left + chartW * dates.indexOf(date) / (dates.length - 1);
+      const yScale = value => margin.top + chartH * (max - value) / (max - min);
+
+      svg.appendChild(el("line", { x1: margin.left, y1: height - margin.bottom, x2: width - margin.right, y2: height - margin.bottom, stroke: "#9aa0a6" }));
+      svg.appendChild(el("line", { x1: margin.left, y1: margin.top, x2: margin.left, y2: height - margin.bottom, stroke: "#9aa0a6" }));
+
+      for (let i = 0; i <= 4; i++) {
+        const value = min + (max - min) * i / 4;
+        const y = yScale(value);
+        svg.appendChild(el("line", { x1: margin.left, y1: y, x2: width - margin.right, y2: y, stroke: "#eceff1" }));
+        text(svg, pct(value), margin.left - 10, y + 4, { "text-anchor": "end", "font-size": 12, fill: "#5f6368" });
+      }
+
+      dates.forEach((date, index) => {
+        if (index % 3 === 0 || index === dates.length - 1) {
+          text(svg, date.slice(5), xScale(date), height - margin.bottom + 28, { "text-anchor": "middle", "font-size": 11, fill: "#5f6368" });
+        }
+      });
+
+      const groups = [
+        { key: "control", color: "#2f6f73" },
+        { key: "treatment", color: "#b45309" }
+      ];
+
+      groups.forEach(group => {
+        const points = daily
+          .filter(d => d[1] === group.key)
+          .map(d => [xScale(d[0]), yScale(d[2])]);
+        const path = points.map((p, index) => `${index === 0 ? "M" : "L"} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
+        svg.appendChild(el("path", { d: path, fill: "none", stroke: group.color, "stroke-width": 3 }));
+        points.forEach(([x, y]) => svg.appendChild(el("circle", { cx: x, cy: y, r: 3, fill: group.color })));
+      });
+    }
+
+    drawBarChart();
+    drawLineChart();
+  </script>
+</body>
+</html>
