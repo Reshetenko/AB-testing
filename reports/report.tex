@@ -8,6 +8,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{float}
 
 \setmainfont{Arial}
 
@@ -38,6 +39,7 @@ The new page did not produce a statistically significant improvement.
 The control group conversion rate was \textbf{12.04\%}, while the treatment group conversion rate was \textbf{11.88\%}.
 The absolute effect was \textbf{-0.158 percentage points}, with a p-value of \textbf{0.190}.
 The 95\% confidence interval for the effect was \textbf{[-0.394 pp; +0.078 pp]}.
+Under explicit business assumptions, the observed effect would imply approximately \textbf{\$142k lower monthly gross profit} if rolled out.
 
 \vspace{0.3cm}
 \noindent
@@ -66,7 +68,7 @@ The raw dataset contains \textbf{294,478} rows and 5 fields: user identifier, ti
 experiment group, landing page shown, and binary conversion flag.
 The experiment ran from \textbf{2017-01-02} to \textbf{2017-01-24}.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -92,7 +94,7 @@ Before estimating the effect, invalid rows were removed:
     \item each user should be counted once.
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{lr}
 \toprule
@@ -130,7 +132,7 @@ Significance level: \(\alpha = 0.05\).
 
 \section{Results}
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{lrrr}
 \toprule
@@ -143,13 +145,13 @@ Treatment: new page & 145,310 & 17,264 & 11.88\% \\
 \caption{Conversion by experiment group}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth]{../figures/report_conversion_rate_by_group.png}
 \caption{Conversion rate by experiment group}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \begin{tabular}{lr}
 \toprule
@@ -165,7 +167,7 @@ p-value & 0.190 \\
 \caption{Final statistical metrics}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.98\textwidth]{../figures/report_daily_conversion_trend.png}
 \caption{Daily conversion rate trend}
@@ -181,6 +183,59 @@ The 95\% confidence interval also includes zero.
 This means the observed difference may be explained by statistical noise.
 Based on this experiment, there is not enough evidence to claim that the new landing page improves conversion.
 
+\section{Decision Risk and Business Impact}
+
+The statistical result was translated into business impact using explicit assumptions.
+These assumptions are illustrative and should be replaced with company-specific economics before a production decision.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Assumption} & \textbf{Value} \\
+\midrule
+Daily users after rollout & 100,000 \\
+Analysis horizon & 30 days \\
+Revenue per conversion & \$75 \\
+Gross margin & 40\% \\
+Significance level & 5\% \\
+Target power for next test & 80\% \\
+\bottomrule
+\end{tabular}
+\caption{Business impact and planning assumptions}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Scenario} & \textbf{Lift} & \textbf{Monthly gross profit impact} \\
+\midrule
+Observed effect persists & -0.158 pp & -\$142,041 \\
+95\% CI lower bound & -0.394 pp & -\$354,411 \\
+95\% CI upper bound & +0.078 pp & +\$70,328 \\
+\bottomrule
+\end{tabular}
+\caption{Estimated rollout impact over a 30-day horizon}
+\end{table}
+
+The downside case is materially larger than the plausible upside case.
+This asymmetry strengthens the recommendation not to launch the new page as-is.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Minimum detectable effect} & \textbf{Users per group} & \textbf{Total users} \\
+\midrule
+0.25 pp & 265,967 & 531,934 \\
+0.50 pp & 66,492 & 132,984 \\
+1.00 pp & 16,623 & 33,246 \\
+\bottomrule
+\end{tabular}
+\caption{Approximate sample size plan for future tests}
+\end{table}
+
 \section{Recommendations}
 
 \begin{enumerate}
@@ -188,6 +243,7 @@ Based on this experiment, there is not enough evidence to claim that the new lan
     \item Keep the old page as the default user experience.
     \item Review the new page design and identify likely friction points.
     \item Before the next test, define the minimum detectable effect and required sample size upfront.
+    \item Use business impact thresholds in addition to statistical significance when making the rollout decision.
     \item Analyze additional segments if business dimensions are available: device, traffic source, country, and new versus returning users.
 \end{enumerate}
 

@@ -1,0 +1,4 @@
+scenario,lift_pp,monthly_conversion_delta,monthly_gross_profit_delta_usd,decision_read
+Observed effect,-0.15782389853555567,-4735,-142042,Expected impact if observed effect persists
+95% CI lower bound,-0.3937903604443846,-11814,-354411,Downside risk if the new page is worse
+95% CI upper bound,0.07814256337327326,2344,70328,Upside if the new page is modestly better

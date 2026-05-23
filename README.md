@@ -19,11 +19,15 @@ ab_testing_case/
     ab_testing_case_study.md
     daily_conversion.csv
     experiment_results.csv
+    business_impact_scenarios.csv
     report.pdf
     report.tex
+    risk_assumptions.csv
+    sample_size_plan.csv
     summary_metrics.csv
   scripts/
     analyze_ab_test.py
+    analyze_decision_risk.py
     render_report_charts.py
 ```
 
@@ -44,6 +48,20 @@ The new landing page did not produce a statistically significant improvement in 
 | 95% confidence interval | [-0.394 pp, +0.078 pp] |
 
 Recommendation: keep the old page and do not launch the new page as-is.
+
+## Decision Risk
+
+The project also includes a business risk layer that translates the statistical result into rollout impact and next-test planning.
+
+Using explicit assumptions of 100,000 daily users, a 30-day horizon, $75 revenue per conversion, and 40% gross margin:
+
+| Scenario | Monthly gross profit impact |
+|---|---:|
+| Observed effect persists | -$142,041 |
+| 95% downside case | -$354,411 |
+| 95% upside case | +$70,328 |
+
+The risk analysis supports the same recommendation: do not roll out the new page as-is. The upside is limited and statistically uncertain, while the downside risk is materially larger.
 
 ## Dashboard
 
@@ -83,6 +101,14 @@ To regenerate the PNG charts used in the PDF report, run:
 
 ```bash
 /Users/mult/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/render_report_charts.py
+```
+
+from inside the `ab_testing_case` folder.
+
+To regenerate the decision risk outputs, run:
+
+```bash
+/Users/mult/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 scripts/analyze_decision_risk.py
 ```
 
 from inside the `ab_testing_case` folder.

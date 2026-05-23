@@ -1,0 +1,7 @@
+assumption,value
+daily_users_after_rollout,100000
+analysis_horizon_days,30
+revenue_per_conversion_usd,75.0
+gross_margin,0.4
+alpha,0.05
+power,0.8

@@ -258,6 +258,41 @@
       line-height: 1.5;
     }
 
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .risk-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfbf8;
+      min-height: 118px;
+    }
+
+    .risk-card .scenario {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .risk-card .amount {
+      font-size: 24px;
+      font-weight: 790;
+      margin-bottom: 7px;
+    }
+
+    .risk-card .detail {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
     footer {
       margin-top: 18px;
       color: var(--muted);
@@ -277,6 +312,10 @@
 
       .status {
         min-width: 0;
+      }
+
+      .risk-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -403,9 +442,52 @@
           <p>Raw rows: 294,478. Clean user-level rows: 290,584. Removed invalid or duplicate rows: 3,894.</p>
         </div>
       </article>
+
+      <article class="panel wide">
+        <div class="panel-head">
+          <div>
+            <h2>Decision Risk and Business Impact</h2>
+            <p class="small">Assumptions: 100,000 daily users, 30-day horizon, $75 revenue per conversion, 40% gross margin.</p>
+          </div>
+        </div>
+        <div class="risk-grid">
+          <div class="risk-card">
+            <div class="scenario">Observed effect</div>
+            <div class="amount negative">-$142k</div>
+            <div class="detail">Expected monthly gross profit impact if the observed lift persists.</div>
+          </div>
+          <div class="risk-card">
+            <div class="scenario">95% downside</div>
+            <div class="amount negative">-$354k</div>
+            <div class="detail">Potential monthly loss at the lower bound of the confidence interval.</div>
+          </div>
+          <div class="risk-card">
+            <div class="scenario">95% upside</div>
+            <div class="amount positive">+$70k</div>
+            <div class="detail">Potential monthly gain at the upper bound of the confidence interval.</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel wide">
+        <div class="panel-head">
+          <div>
+            <h2>Next Test Sample Size Plan</h2>
+            <p class="small">Approximate two-sided test plan at alpha = 0.05 and 80% power.</p>
+          </div>
+        </div>
+        <table>
+          <tbody>
+            <tr><th>Minimum detectable effect</th><th>Users per group</th><th>Total users</th></tr>
+            <tr><td>0.25 pp</td><td>265,967</td><td>531,934</td></tr>
+            <tr><td>0.50 pp</td><td>66,492</td><td>132,984</td></tr>
+            <tr><td>1.00 pp</td><td>16,623</td><td>33,246</td></tr>
+          </tbody>
+        </table>
+      </article>
     </section>
 
-    <footer>Generated from reports/summary_metrics.csv, reports/experiment_results.csv, and reports/daily_conversion.csv.</footer>
+    <footer>Generated from reports/summary_metrics.csv, reports/experiment_results.csv, reports/daily_conversion.csv, and decision risk outputs.</footer>
   </main>
 
   <script>
