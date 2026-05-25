@@ -81,6 +81,48 @@
       font-weight: 750;
     }
 
+    .brief {
+      display: grid;
+      grid-template-columns: 1.25fr repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .brief-item {
+      background: var(--panel);
+      border: 1px solid #eceff1;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      min-height: 142px;
+    }
+
+    .brief-item.primary {
+      border-left: 5px solid var(--control);
+    }
+
+    .brief-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 750;
+      margin-bottom: 8px;
+    }
+
+    .brief-title {
+      font-size: 17px;
+      font-weight: 780;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .brief-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 0;
+    }
+
     .kpis {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -310,6 +352,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .brief {
+        grid-template-columns: 1fr 1fr;
+      }
+
       .status {
         min-width: 0;
       }
@@ -325,6 +371,10 @@
       }
 
       .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .brief {
         grid-template-columns: 1fr;
       }
 
@@ -353,13 +403,36 @@
     <header>
       <div>
         <h1>A/B Test Dashboard</h1>
-        <p class="subtitle">New landing page vs old landing page. Experiment window: 2017-01-02 to 2017-01-24. Primary metric: conversion rate.</p>
+        <p class="subtitle">Business question: should an e-commerce company replace its existing landing page with a new design? This dashboard summarizes the experiment, statistical result, rollout risk, and final decision.</p>
       </div>
       <div class="status">
         <strong>Decision</strong>
         <span>Do not roll out the new page</span>
       </div>
     </header>
+
+    <section class="brief" aria-label="Project brief">
+      <article class="brief-item primary">
+        <div class="brief-label">Business Problem</div>
+        <div class="brief-title">The company needs to decide whether to launch a new landing page.</div>
+        <p class="brief-copy">The current page is the baseline experience. The new page should only be launched if it improves conversion enough to justify rollout risk.</p>
+      </article>
+      <article class="brief-item">
+        <div class="brief-label">Experiment</div>
+        <div class="brief-title">Old page vs new page</div>
+        <p class="brief-copy">Users were split into control and treatment groups from 2017-01-02 to 2017-01-24. The primary KPI is conversion rate.</p>
+      </article>
+      <article class="brief-item">
+        <div class="brief-label">Analysis Task</div>
+        <div class="brief-title">Clean data, test uplift, estimate business impact</div>
+        <p class="brief-copy">Invalid assignments and duplicate users were removed, conversion rates were compared, and rollout impact was modeled.</p>
+      </article>
+      <article class="brief-item">
+        <div class="brief-label">Decision Rule</div>
+        <div class="brief-title">Launch only with clear positive evidence</div>
+        <p class="brief-copy">The new page needs statistically credible uplift and acceptable downside risk. This test does not meet that bar.</p>
+      </article>
+    </section>
 
     <section class="kpis" aria-label="Key metrics">
       <article class="kpi">
